@@ -358,7 +358,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbwRqgaX0_4y9C0g0WciIVE7HmdDCHQ2zZz5M37BA-d2nVfmZgXW-Rgwn6TkrZmRuCDUJg/exec";
 
 async function loadLiveData() {
-  if (!API_URL || API_URL.startsWith("ВАШ_")) return;
+  if (!API_URL || API_URL.includes("ВАШ_")) return;
   try {
     const tgUser = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe
       ? window.Telegram.WebApp.initDataUnsafe.user
@@ -371,39 +371,65 @@ async function loadLiveData() {
     const data = await res.json();
     if (!data || !data.ok) return;
 
-    if (typeof data.yearlyIncome === "number") {
-      const kpiEl = document.querySelector("#tab-overview .kpi");
-      const subEl = document.querySelector("#tab-overview .kpi + .sub");
-      if (kpiEl) kpiEl.textContent = `${data.yearlyIncome.toLocaleString("ru-RU", { minimumFractionDigits: 2 })} ₽ / год`;
-      if (subEl) subEl.textContent = `~${Number(data.monthlyForecast || 0).toLocaleString("ru-RU", { minimumFractionDigits: 2 })} ₽ в месяц · данные из таблицы`;
+    const fmtRub = (val) =>
+      Number(val || 0).toLocaleString("ru-RU", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + " ₽";
+
+    const kpiEl = document.querySelector("#tab-overview .kpi");
+    const subEl = document.querySelector("#tab-overview .kpi + .sub");
+
+    if (kpiEl && typeof data.yearlyIncome === "number") {
+      kpiEl.textContent = `${fmtRub(data.yearlyIncome)} / год`;
+    }
+    if (subEl && typeof data.monthlyForecast === "number") {
+      subEl.textContent = `${fmtRub(data.monthlyForecast)} в месяц · данные из таблицы`;
     }
 
-    if (Array.isArray(data.assets) && data.assets.length > 0) {
-      const assetsCard = document.querySelector("#tab-assets .card");
-      if (assetsCard) {
-        const itemsHtml = data.assets.map(a => `
-          <div class="asset-item">
-            <div>
-              <div class="item-name">${a.name}</div>
-              <div class="item-meta">${a.sector}${a.pnlBadge ? " · " + a.pnlBadge : ""}</div>
-            </div>
-            <div class="item-val">${a.share}%</div>
-          </div>
-        `).join("");
-        assetsCard.innerHTML = `
-          <div class="section-title">Активы в портфеле</div>
-          <div class="sub" style="margin-bottom: 12px;">Актуальные позиции из листа Summary</div>
-          ${itemsHtml}
-          <button class="btn btn-secondary" onclick="switchTab('pro')">Открыть безлимит активов в Pro</button>
-        `;
+    const chartInstance =
+      window.payoutChart ||
+      window.chart ||
+      (typeof payoutChart !== "undefined" ? payoutChart : null) ||
+      (typeof chart !== "undefined" ? chart : null);
+
+    if (chartInstance && Array.isArray(data.monthlyForecasts) && data.monthlyForecasts.length === 12) {
+      chartInstance.data.datasets[0].data = data.monthlyForecasts.map((n) => Number(n) || 0);
+      chartInstance.update();
+    } else if (chartInstance && typeof data.monthlyForecast === "number") {
+      const perMonth = Number(data.monthlyForecast.toFixed(2));
+      chartInstance.data.datasets[0].data = Array(12).fill(perMonth);
+      chartInstance.update();
+    }
+
+    const assetsContainer =
+      document.querySelector("#tab-assets .assets-list") ||
+      document.querySelector("#tab-assets");
+
+    if (assetsContainer && Array.isArray(data.assets) && data.assets.length > 0) {
+      const listTarget = assetsContainer.querySelector(".assets-list") || assetsContainer;
+      if (listTarget.id !== "tab-assets") {
+        listTarget.innerHTML = data.assets
+          .map(
+            (item) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
+                <div>
+                  <div style="font-weight:600;">${item.name || "Актив"}</div>
+                  <div style="font-size:12px;opacity:0.7;">${item.sector || "Портфель"} · Доля ${item.share || 0}%</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-weight:600;">${fmtRub(item.marketValue || item.positionValue || 0)}</div>
+                  <div style="font-size:12px;opacity:0.8;">Выплаты: ${fmtRub(item.payout || 0)}</div>
+                </div>
+              </div>
+            `
+          )
+          .join("");
       }
     }
-  } catch (e) {
-    console.warn("Не удалось загрузить данные таблицы:", e);
+  } catch (err) {
+    console.warn("FinAxis loadLiveData error:", err);
   }
 }
+            
 
-loadLiveData();
-  </script>
-</body>
-</html>
