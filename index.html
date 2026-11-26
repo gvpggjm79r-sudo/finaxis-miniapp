@@ -198,3 +198,214 @@
   </section>
 
   <section id="tab-assets" class="tab-content">
+    <div class="card" id="assetsCard">
+      <div class="section-title">Активы в портфеле</div>
+      <div class="sub" style="margin-bottom: 12px;">Базовые позиции портфеля</div>
+      <div id="assetsList">
+        <div class="asset-item">
+          <div>
+            <div class="item-name">Сбербанк · SBER</div>
+            <div class="item-meta">Акции · базовая позиция</div>
+          </div>
+          <div class="item-val">42%</div>
+        </div>
+        <div class="asset-item">
+          <div>
+            <div class="item-name">Лукойл · LKOH</div>
+            <div class="item-meta">Акции · дивидендный фокус</div>
+          </div>
+          <div class="item-val">33%</div>
+        </div>
+        <div class="asset-item">
+          <div>
+            <div class="item-name">ОФЗ / Корп. облигации</div>
+            <div class="item-meta">Купонный доход</div>
+          </div>
+          <div class="item-val">25%</div>
+        </div>
+      </div>
+      <button class="btn btn-secondary" onclick="switchTab('pro')">Открыть безлимит активов в Pro</button>
+    </div>
+  </section>
+
+  <section id="tab-calendar" class="tab-content">
+    <div class="card">
+      <div class="section-title">График ожидаемых выплат</div>
+      <div class="sub" style="margin-bottom: 12px;">Чистые суммы с учётом 13% НДФЛ по месяцам поступления</div>
+      <div id="calendarList">
+        <div class="event-item">
+          <div>
+            <div class="item-name">Май</div>
+            <div class="item-meta">Прогноз выплат</div>
+          </div>
+          <div class="item-val">2 741 ₽</div>
+        </div>
+        <div class="event-item">
+          <div>
+            <div class="item-name">Июнь</div>
+            <div class="item-meta">Прогноз выплат</div>
+          </div>
+          <div class="item-val">1 305 ₽</div>
+        </div>
+        <div class="event-item">
+          <div>
+            <div class="item-name">Июль</div>
+            <div class="item-meta">Пиковый месяц выплат</div>
+          </div>
+          <div class="item-val">8 439 ₽</div>
+        </div>
+        <div class="event-item">
+          <div>
+            <div class="item-name">Декабрь</div>
+            <div class="item-meta">Прогноз выплат</div>
+          </div>
+          <div class="item-val">696 ₽</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-pro" class="tab-content">
+    <div class="card">
+      <div class="title">FinAxis Pro</div>
+      <div class="sub">Расширенная аналитика для инвесторов</div>
+      <div class="pro-price">299 ₽ / мес</div>
+      <ul class="pro-list">
+        <li>Безлимитное количество позиций в портфеле</li>
+        <li>Детальный календарь выплат и купонов</li>
+        <li>Сравнение сценариев реинвестирования</li>
+      </ul>
+      <button class="btn" id="proActionBtn" onclick="handleProClick()">Активировать демо-режим Pro</button>
+    </div>
+  </section>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="overview" onclick="switchTab('overview')">Обзор</button>
+    <button class="nav-btn" data-tab="assets" onclick="switchTab('assets')">Активы</button>
+    <button class="nav-btn" data-tab="calendar" onclick="switchTab('calendar')">Календарь</button>
+    <button class="nav-btn" data-tab="pro" onclick="switchTab('pro')">Pro</button>
+  </nav>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
+      if (user && user.first_name) {
+        const greetingEl = document.getElementById("greeting");
+        if (greetingEl) greetingEl.textContent = "FinAxis — " + user.first_name;
+      }
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-content").forEach((el) => {
+        el.classList.remove("active");
+      });
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+      const target = document.getElementById("tab-" + tabName);
+      if (target) target.classList.add("active");
+    }
+
+    let isProDemo = false;
+    function handleProClick() {
+      isProDemo = !isProDemo;
+      const badge = document.getElementById("planBadge");
+      const btn = document.getElementById("proActionBtn");
+      if (badge) badge.textContent = isProDemo ? "PRO DEMO" : "FREE";
+      if (btn) btn.textContent = isProDemo ? "Отключить демо-режим Pro" : "Активировать демо-режим Pro";
+    }
+
+    const API_URL = "https://script.google.com/macros/s/AKfycbwRqgaX0_4y9C0g0WciiVE7HmdDCHQ2zZzZ5M37BA-d2nVfmZgXW-Rgwn6TkrZmRuCDUJg/exec";
+    let payoutChart = null;
+
+    const canvasEl = document.getElementById("divChart");
+    if (canvasEl && typeof Chart !== "undefined") {
+      const ctx = canvasEl.getContext("2d");
+      payoutChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+          datasets: [{
+            label: "Выплаты, ₽",
+            data: [0, 0, 0, 0, 2741, 1305, 8439, 0, 0, 0, 0, 696],
+            backgroundColor: "#14b8a6",
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: "#94a3b8" }, grid: { display: false } },
+            y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.06)" } }
+          }
+        }
+      });
+    }
+
+    async function loadLiveData() {
+      if (!API_URL || API_URL.indexOf("ВАШ_") !== -1) return;
+      try {
+        const tgUser = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+        const url = tgUser && tgUser.id
+          ? API_URL + "?user_id=" + encodeURIComponent(tgUser.id)
+          : API_URL;
+
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data || !data.ok) return;
+
+        const fmtRub = function (val) {
+          return Number(val || 0).toLocaleString("ru-RU", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }) + " ₽";
+        };
+
+        const kpiEl = document.querySelector("#tab-overview .kpi");
+        const subEl = document.querySelector("#tab-overview .kpi + .sub");
+
+        if (kpiEl && typeof data.yearlyIncome === "number") {
+          kpiEl.textContent = fmtRub(data.yearlyIncome) + " / год";
+        }
+        if (subEl && typeof data.monthlyForecast === "number") {
+          const portPart = typeof data.portfolioValue === "number"
+            ? " · портфель " + fmtRub(data.portfolioValue)
+            : " · данные из таблицы";
+          subEl.textContent = fmtRub(data.monthlyForecast) + " в месяц" + portPart;
+        }
+
+        if (payoutChart && Array.isArray(data.monthlyForecasts) && data.monthlyForecasts.length === 12) {
+          payoutChart.data.datasets[0].data = data.monthlyForecasts.map(function (n) {
+            return Number(n) || 0;
+          });
+          payoutChart.update();
+        }
+
+        const assetsList = document.getElementById("assetsList");
+        if (assetsList && Array.isArray(data.assets) && data.assets.length > 0) {
+          assetsList.innerHTML = data.assets.map(function (a) {
+            const name = String(a.name || "");
+            const sector = String(a.sector || "");
+            const payout = Number(a.payout || 0);
+            const share = a.share !== undefined && a.share !== null ? a.share + "%" : "";
+            const valText = fmtRub(a.positionValue || a.marketValue || 0);
+            const metaText = [sector, payout ? "выплаты " + fmtRub(payout) : "", share].filter(Boolean).join(" · ");
+            return '<div class="asset-item">' +
+              '<div><div class="item-name">' + name + '</div><div class="item-meta">' + metaText + '</div></div>' +
+              '<div class="item-val">' + valText + '</div>' +
+              '</div>';
+          }).join("");
+        }
+      } catch (err) {
+        console.warn("FinAxis loadLiveData error:", err);
+      }
+    }
+
+    loadLiveData();
+  </script>
+</body>
+</html>
