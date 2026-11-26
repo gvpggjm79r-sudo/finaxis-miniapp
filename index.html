@@ -184,7 +184,6 @@
     <span class="badge" id="planBadge">FREE</span>
   </div>
 
-  <!-- Вкладка 1: Обзор -->
   <section id="tab-overview" class="tab-content active">
     <div class="card">
       <div class="sub">Прогноз пассивного дохода (после 13% НДФЛ)</div>
@@ -198,93 +197,85 @@
     </div>
   </section>
 
-  <!-- Вкладка 2: Активы -->
   <section id="tab-assets" class="tab-content">
-    <div class="card">
+    <div class="card" id="assetsCard">
       <div class="section-title">Активы в портфеле</div>
-      <div class="sub" style="margin-bottom: 12px;">
-        Демо-структура до подключения вашей таблицы и MOEX API
-      </div>
-      <div class="asset-item">
-        <div>
-          <div class="item-name">Сбербанк · SBER</div>
-          <div class="item-meta">Акции · базовая позиция</div>
+      <div class="sub" style="margin-bottom: 12px;">Базовые позиции портфеля</div>
+      <div id="assetsList">
+        <div class="asset-item">
+          <div>
+            <div class="item-name">Сбербанк · SBER</div>
+            <div class="item-meta">Акции · базовая позиция</div>
+          </div>
+          <div class="item-val">42%</div>
         </div>
-        <div class="item-val">42%</div>
-      </div>
-      <div class="asset-item">
-        <div>
-          <div class="item-name">Лукойл · LKOH</div>
-          <div class="item-meta">Акции · дивидендный фокус</div>
+        <div class="asset-item">
+          <div>
+            <div class="item-name">Лукойл · LKOH</div>
+            <div class="item-meta">Акции · дивидендный фокус</div>
+          </div>
+          <div class="item-val">33%</div>
         </div>
-        <div class="item-val">33%</div>
-      </div>
-      <div class="asset-item">
-        <div>
-          <div class="item-name">ОФЗ / Корп. облигации</div>
-          <div class="item-meta">Купонный доход</div>
+        <div class="asset-item">
+          <div>
+            <div class="item-name">ОФЗ / Корп. облигации</div>
+            <div class="item-meta">Купонный доход</div>
+          </div>
+          <div class="item-val">25%</div>
         </div>
-        <div class="item-val">25%</div>
       </div>
-      <button class="btn btn-secondary" onclick="switchTab('pro')">
-        Открыть безлимит активов в Pro
-      </button>
+      <button class="btn btn-secondary" onclick="switchTab('pro')">Открыть безлимит активов в Pro</button>
     </div>
   </section>
 
-  <!-- Вкладка 3: Календарь -->
   <section id="tab-calendar" class="tab-content">
     <div class="card">
       <div class="section-title">График ожидаемых выплат</div>
-      <div class="sub" style="margin-bottom: 12px;">
-        Чистые суммы с учётом 13% НДФЛ по месяцам поступления
-      </div>
-      <div class="event-item">
-        <div>
-          <div class="item-name">Май</div>
-          <div class="item-meta">Прогноз выплат</div>
+      <div class="sub" style="margin-bottom: 12px;">Чистые суммы с учётом 13% НДФЛ по месяцам поступления</div>
+      <div id="calendarList">
+        <div class="event-item">
+          <div>
+            <div class="item-name">Май</div>
+            <div class="item-meta">Прогноз выплат</div>
+          </div>
+          <div class="item-val">2 741 ₽</div>
         </div>
-        <div class="item-val">2 741 ₽</div>
-      </div>
-      <div class="event-item">
-        <div>
-          <div class="item-name">Июнь</div>
-          <div class="item-meta">Прогноз выплат</div>
+        <div class="event-item">
+          <div>
+            <div class="item-name">Июнь</div>
+            <div class="item-meta">Прогноз выплат</div>
+          </div>
+          <div class="item-val">1 305 ₽</div>
         </div>
-        <div class="item-val">1 305 ₽</div>
-      </div>
-      <div class="event-item">
-        <div>
-          <div class="item-name">Июль</div>
-          <div class="item-meta">Пиковый месяц выплат</div>
+        <div class="event-item">
+          <div>
+            <div class="item-name">Июль</div>
+            <div class="item-meta">Пиковый месяц выплат</div>
+          </div>
+          <div class="item-val">8 439 ₽</div>
         </div>
-        <div class="item-val">8 439 ₽</div>
-      </div>
-      <div class="event-item">
-        <div>
-          <div class="item-name">Декабрь</div>
-          <div class="item-meta">Прогноз выплат</div>
+        <div class="event-item">
+          <div>
+            <div class="item-name">Декабрь</div>
+            <div class="item-meta">Прогноз выплат</div>
+          </div>
+          <div class="item-val">696 ₽</div>
         </div>
-        <div class="item-val">696 ₽</div>
       </div>
     </div>
   </section>
 
-  <!-- Вкладка 4: Pro -->
   <section id="tab-pro" class="tab-content">
     <div class="card">
       <div class="title">FinAxis Pro</div>
       <div class="sub">Расширенная аналитика для инвесторов</div>
-      <div class="pro-price">199–299 ₽ / мес</div>
+      <div class="pro-price">299 ₽ / мес</div>
       <ul class="pro-list">
-        <li>• Неограниченное количество активов и сделок</li>
-        <li>• Поддержка нескольких портфелей (основной, ИИС, цели)</li>
-        <li>• Расширенная аналитика диверсификации и доходности</li>
-        <li>• Экспорт отчётов и глубокий разбор выплат</li>
+        <li>Безлимитное количество позиций в портфеле</li>
+        <li>Детальный календарь выплат и купонов</li>
+        <li>Сравнение сценариев реинвестирования</li>
       </ul>
-      <button class="btn" id="proActionBtn" onclick="handleProClick()">
-        Активировать демо-режим Pro
-      </button>
+      <button class="btn" id="proActionBtn" onclick="handleProClick()">Активировать демо-режим Pro</button>
     </div>
   </section>
 
@@ -302,7 +293,8 @@
       tg.expand();
       const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
       if (user && user.first_name) {
-        document.getElementById("greeting").textContent = "FinAxis — " + user.first_name;
+        const greetingEl = document.getElementById("greeting");
+        if (greetingEl) greetingEl.textContent = "FinAxis — " + user.first_name;
       }
     }
 
@@ -322,70 +314,79 @@
       isProDemo = !isProDemo;
       const badge = document.getElementById("planBadge");
       const btn = document.getElementById("proActionBtn");
-      badge.textContent = isProDemo ? "PRO DEMO" : "FREE";
-      btn.textContent = isProDemo ? "Вернуться на Free" : "Активировать демо-режим Pro";
-      if (tg && tg.showPopup) {
-        tg.showPopup({
-          title: "FinAxis Pro",
-          message: isProDemo
-            ? "Включён предпросмотр Pro-интерфейса (199–299 ₽/мес)."
-            : "Вы вернулись на базовый бесплатный режим."
-        });
-      }
+      if (badge) badge.textContent = isProDemo ? "PRO DEMO" : "FREE";
+      if (btn) btn.textContent = isProDemo ? "Отключить демо-режим Pro" : "Активировать демо-режим Pro";
     }
 
-    const ctx = document.getElementById("divChart").getContext("2d");
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-        datasets: [{
-          label: "Выплаты, ₽",
-          data: [0, 0, 0, 0, 2741, 1305, 8439, 0, 0, 0, 0, 696],
-          backgroundColor: "#14b8a6",
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: "#94a3b8" }, grid: { display: false } },
-          y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.06)" } }
+    const API_URL = "https://script.google.com/macros/s/AKfycbwRqgaX0_4y9C0g0WciiVE7HmdDCHQ2zZzZ5M37BA-d2nVfmZgXW-Rgwn6TkrZmRuCDUJg/exec";
+    let payoutChart = null;
+
+    const canvasEl = document.getElementById("divChart");
+    if (canvasEl && typeof Chart !== "undefined") {
+      const ctx = canvasEl.getContext("2d");
+      payoutChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
+          datasets: [{
+            label: "Выплаты, ₽",
+            data: [0, 0, 0, 0, 2741, 1305, 8439, 0, 0, 0, 0, 696],
+            backgroundColor: "#14b8a6",
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: "#94a3b8" }, grid: { display: false } },
+            y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.06)" } }
+          }
         }
+      });
+    }
+
+    async function loadLiveData() {
+      if (!API_URL || API_URL.indexOf("ВАШ_") !== -1) return;
+      try {
+        const tgUser = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
+        const url = tgUser && tgUser.id
+          ? API_URL + "?user_id=" + encodeURIComponent(tgUser.id)
+          : API_URL;
+
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data || !data.ok) return;
+
+        const fmtRub = function (val) {
+          return Number(val || 0).toLocaleString("ru-RU", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }) + " ₽";
+        };
+
+        const kpiEl = document.querySelector("#tab-overview .kpi");
+        const subEl = document.querySelector("#tab-overview .kpi + .sub");
+
+        if (kpiEl && typeof data.yearlyIncome === "number") {
+          kpiEl.textContent = fmtRub(data.yearlyIncome) + " / год";
+        }
+        if (subEl && typeof data.monthlyForecast === "number") {
+          subEl.textContent = fmtRub(data.monthlyForecast) + " в месяц · данные из таблицы";
+        }
+
+        if (payoutChart && Array.isArray(data.monthlyForecasts) && data.monthlyForecasts.length === 12) {
+          payoutChart.data.datasets[0].data = data.monthlyForecasts.map(function (n) {
+            return Number(n) || 0;
+          });
+          payoutChart.update();
+        }
+      } catch (err) {
+        console.warn("FinAxis loadLiveData error:", err);
       }
-    });
-    const API_URL = "https://script.google.com/macros/s/AKfycbwRqgaX0_4y9C0g0WciIVE7HmdDCHQ2zZz5M37BA-d2nVfmZgXW-Rgwn6TkrZmRuCDUJg/exec";
-
-async function loadLiveData() {
-  if (!API_URL || API_URL.includes("ВАШ_")) return;
-  try {
-    const tgUser = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe
-      ? window.Telegram.WebApp.initDataUnsafe.user
-      : null;
-    const url = tgUser && tgUser.id
-      ? `${API_URL}?user_id=${encodeURIComponent(tgUser.id)}`
-      : API_URL;
-
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!data || !data.ok) return;
-
-    const fmtRub = (val) =>
-      Number(val || 0).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₽";
-
-    const kpiEl = document.querySelector("#tab-overview .kpi");
-    const subEl = document.querySelector("#tab-overview .kpi + .sub");
-
-    if (kpiEl && typeof data.yearlyIncome === "number") {
-      kpiEl.textContent = `${fmtRub(data.yearlyIncome)} / год`;
     }
-    if (subEl && typeof data.monthlyForecast === "number") {
-      subEl.textContent = `${fmtRub(data.monthlyForecast)} в месяц · данные из таблицы`;
-    }
-  } catch (err) {
-    console.warn("FinAxis loadLiveData error:", err);
-  }
-}
-            
 
+    loadLiveData();
+  </script>
+</body>
+</html>
