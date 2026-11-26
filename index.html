@@ -10,31 +10,290 @@
     :root {
       --bg: #0b0f17;
       --card: #131a26;
+      --card-soft: #182232;
       --accent: #14b8a6;
+      --accent-soft: rgba(20, 184, 166, 0.14);
       --text: #f1f5f9;
       --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 16px; }
-    .card { background: var(--card); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
-    .title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-    .sub { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
-    .kpi { font-size: 24px; font-weight: 700; color: var(--accent); }
-    canvas { max-height: 220px; width: 100% !important; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px 16px 84px;
+    }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .sub {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .kpi {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 10px 0 4px;
+    }
+    canvas {
+      max-height: 220px;
+      width: 100% !important;
+      margin-top: 8px;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .asset-item, .event-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--card-soft);
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+    .asset-item:last-child, .event-item:last-child {
+      margin-bottom: 0;
+    }
+    .item-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .item-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .item-val {
+      text-align: right;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .pro-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 10px 0 12px;
+    }
+    .pro-list {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+    .pro-list li {
+      font-size: 13px;
+      color: var(--text);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .pro-list li:last-child {
+      border-bottom: none;
+    }
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #06201d;
+    }
+    .btn-secondary {
+      margin-top: 10px;
+      background: var(--card-soft);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: rgba(19, 26, 38, 0.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 4px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .nav-btn.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="title" id="greeting">FinAxis Аналитика</div>
-    <div class="sub">Прогноз пассивного дохода (после 13% НДФЛ)</div>
-    <div class="kpi">13 180,50 ₽ / год</div>
-    <div class="sub">~1 098,38 ₽ в месяц</div>
+  <div class="header-row">
+    <div>
+      <div class="title" id="greeting">FinAxis Аналитика</div>
+      <div class="sub">Портфель и дивидендный прогноз</div>
+    </div>
+    <span class="badge" id="planBadge">FREE</span>
   </div>
 
-  <div class="card">
-    <div class="title">Выплаты по месяцам</div>
-    <canvas id="divChart"></canvas>
-  </div>
+  <!-- Вкладка 1: Обзор -->
+  <section id="tab-overview" class="tab-content active">
+    <div class="card">
+      <div class="sub">Прогноз пассивного дохода (после 13% НДФЛ)</div>
+      <div class="kpi">13 180,50 ₽ / год</div>
+      <div class="sub">~1 098,38 ₽ в месяц · базовый план</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Выплаты по месяцам</div>
+      <canvas id="divChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Вкладка 2: Активы -->
+  <section id="tab-assets" class="tab-content">
+    <div class="card">
+      <div class="section-title">Активы в портфеле</div>
+      <div class="sub" style="margin-bottom: 12px;">
+        Демо-структура до подключения вашей таблицы и MOEX API
+      </div>
+      <div class="asset-item">
+        <div>
+          <div class="item-name">Сбербанк · SBER</div>
+          <div class="item-meta">Акции · базовая позиция</div>
+        </div>
+        <div class="item-val">42%</div>
+      </div>
+      <div class="asset-item">
+        <div>
+          <div class="item-name">Лукойл · LKOH</div>
+          <div class="item-meta">Акции · дивидендный фокус</div>
+        </div>
+        <div class="item-val">33%</div>
+      </div>
+      <div class="asset-item">
+        <div>
+          <div class="item-name">ОФЗ / Корп. облигации</div>
+          <div class="item-meta">Купонный доход</div>
+        </div>
+        <div class="item-val">25%</div>
+      </div>
+      <button class="btn btn-secondary" onclick="switchTab('pro')">
+        Открыть безлимит активов в Pro
+      </button>
+    </div>
+  </section>
+
+  <!-- Вкладка 3: Календарь -->
+  <section id="tab-calendar" class="tab-content">
+    <div class="card">
+      <div class="section-title">График ожидаемых выплат</div>
+      <div class="sub" style="margin-bottom: 12px;">
+        Чистые суммы с учётом 13% НДФЛ по месяцам поступления
+      </div>
+      <div class="event-item">
+        <div>
+          <div class="item-name">Май</div>
+          <div class="item-meta">Прогноз выплат</div>
+        </div>
+        <div class="item-val">2 741 ₽</div>
+      </div>
+      <div class="event-item">
+        <div>
+          <div class="item-name">Июнь</div>
+          <div class="item-meta">Прогноз выплат</div>
+        </div>
+        <div class="item-val">1 305 ₽</div>
+      </div>
+      <div class="event-item">
+        <div>
+          <div class="item-name">Июль</div>
+          <div class="item-meta">Пиковый месяц выплат</div>
+        </div>
+        <div class="item-val">8 439 ₽</div>
+      </div>
+      <div class="event-item">
+        <div>
+          <div class="item-name">Декабрь</div>
+          <div class="item-meta">Прогноз выплат</div>
+        </div>
+        <div class="item-val">696 ₽</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Вкладка 4: Pro -->
+  <section id="tab-pro" class="tab-content">
+    <div class="card">
+      <div class="title">FinAxis Pro</div>
+      <div class="sub">Расширенная аналитика для инвесторов</div>
+      <div class="pro-price">199–299 ₽ / мес</div>
+      <ul class="pro-list">
+        <li>• Неограниченное количество активов и сделок</li>
+        <li>• Поддержка нескольких портфелей (основной, ИИС, цели)</li>
+        <li>• Расширенная аналитика диверсификации и доходности</li>
+        <li>• Экспорт отчётов и глубокий разбор выплат</li>
+      </ul>
+      <button class="btn" id="proActionBtn" onclick="handleProClick()">
+        Активировать демо-режим Pro
+      </button>
+    </div>
+  </section>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="overview" onclick="switchTab('overview')">Обзор</button>
+    <button class="nav-btn" data-tab="assets" onclick="switchTab('assets')">Активы</button>
+    <button class="nav-btn" data-tab="calendar" onclick="switchTab('calendar')">Календарь</button>
+    <button class="nav-btn" data-tab="pro" onclick="switchTab('pro')">Pro</button>
+  </nav>
 
   <script>
     const tg = window.Telegram && window.Telegram.WebApp;
@@ -44,6 +303,34 @@
       const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
       if (user && user.first_name) {
         document.getElementById("greeting").textContent = "FinAxis — " + user.first_name;
+      }
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-content").forEach((el) => {
+        el.classList.remove("active");
+      });
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+      const target = document.getElementById("tab-" + tabName);
+      if (target) target.classList.add("active");
+    }
+
+    let isProDemo = false;
+    function handleProClick() {
+      isProDemo = !isProDemo;
+      const badge = document.getElementById("planBadge");
+      const btn = document.getElementById("proActionBtn");
+      badge.textContent = isProDemo ? "PRO DEMO" : "FREE";
+      btn.textContent = isProDemo ? "Вернуться на Free" : "Активировать демо-режим Pro";
+      if (tg && tg.showPopup) {
+        tg.showPopup({
+          title: "FinAxis Pro",
+          message: isProDemo
+            ? "Включён предпросмотр Pro-интерфейса (199–299 ₽/мес)."
+            : "Вы вернулись на базовый бесплатный режим."
+        });
       }
     }
 
