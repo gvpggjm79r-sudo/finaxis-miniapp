@@ -372,10 +372,7 @@ async function loadLiveData() {
     if (!data || !data.ok) return;
 
     const fmtRub = (val) =>
-      Number(val || 0).toLocaleString("ru-RU", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }) + " ₽";
+      Number(val || 0).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₽";
 
     const kpiEl = document.querySelector("#tab-overview .kpi");
     const subEl = document.querySelector("#tab-overview .kpi + .sub");
@@ -385,47 +382,6 @@ async function loadLiveData() {
     }
     if (subEl && typeof data.monthlyForecast === "number") {
       subEl.textContent = `${fmtRub(data.monthlyForecast)} в месяц · данные из таблицы`;
-    }
-
-    const chartInstance =
-      window.payoutChart ||
-      window.chart ||
-      (typeof payoutChart !== "undefined" ? payoutChart : null) ||
-      (typeof chart !== "undefined" ? chart : null);
-
-    if (chartInstance && Array.isArray(data.monthlyForecasts) && data.monthlyForecasts.length === 12) {
-      chartInstance.data.datasets[0].data = data.monthlyForecasts.map((n) => Number(n) || 0);
-      chartInstance.update();
-    } else if (chartInstance && typeof data.monthlyForecast === "number") {
-      const perMonth = Number(data.monthlyForecast.toFixed(2));
-      chartInstance.data.datasets[0].data = Array(12).fill(perMonth);
-      chartInstance.update();
-    }
-
-    const assetsContainer =
-      document.querySelector("#tab-assets .assets-list") ||
-      document.querySelector("#tab-assets");
-
-    if (assetsContainer && Array.isArray(data.assets) && data.assets.length > 0) {
-      const listTarget = assetsContainer.querySelector(".assets-list") || assetsContainer;
-      if (listTarget.id !== "tab-assets") {
-        listTarget.innerHTML = data.assets
-          .map(
-            (item) => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
-                <div>
-                  <div style="font-weight:600;">${item.name || "Актив"}</div>
-                  <div style="font-size:12px;opacity:0.7;">${item.sector || "Портфель"} · Доля ${item.share || 0}%</div>
-                </div>
-                <div style="text-align:right;">
-                  <div style="font-weight:600;">${fmtRub(item.marketValue || item.positionValue || 0)}</div>
-                  <div style="font-size:12px;opacity:0.8;">Выплаты: ${fmtRub(item.payout || 0)}</div>
-                </div>
-              </div>
-            `
-          )
-          .join("");
-      }
     }
   } catch (err) {
     console.warn("FinAxis loadLiveData error:", err);
