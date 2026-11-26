@@ -355,6 +355,55 @@
         }
       }
     });
+    const API_URL = "https://script.google.com/macros/s/AKfycbwRqgaX0_4y9C0g0WciIVE7HmdDCHQ2zZz5M37BA-d2nVfmZgXW-Rgwn6TkrZmRuCDUJg/exec";
+
+async function loadLiveData() {
+  if (!API_URL || API_URL.startsWith("ВАШ_")) return;
+  try {
+    const tgUser = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe
+      ? window.Telegram.WebApp.initDataUnsafe.user
+      : null;
+    const url = tgUser && tgUser.id
+      ? `${API_URL}?user_id=${encodeURIComponent(tgUser.id)}`
+      : API_URL;
+
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data || !data.ok) return;
+
+    if (typeof data.yearlyIncome === "number") {
+      const kpiEl = document.querySelector("#tab-overview .kpi");
+      const subEl = document.querySelector("#tab-overview .kpi + .sub");
+      if (kpiEl) kpiEl.textContent = `${data.yearlyIncome.toLocaleString("ru-RU", { minimumFractionDigits: 2 })} ₽ / год`;
+      if (subEl) subEl.textContent = `~${Number(data.monthlyForecast || 0).toLocaleString("ru-RU", { minimumFractionDigits: 2 })} ₽ в месяц · данные из таблицы`;
+    }
+
+    if (Array.isArray(data.assets) && data.assets.length > 0) {
+      const assetsCard = document.querySelector("#tab-assets .card");
+      if (assetsCard) {
+        const itemsHtml = data.assets.map(a => `
+          <div class="asset-item">
+            <div>
+              <div class="item-name">${a.name}</div>
+              <div class="item-meta">${a.sector}${a.pnlBadge ? " · " + a.pnlBadge : ""}</div>
+            </div>
+            <div class="item-val">${a.share}%</div>
+          </div>
+        `).join("");
+        assetsCard.innerHTML = `
+          <div class="section-title">Активы в портфеле</div>
+          <div class="sub" style="margin-bottom: 12px;">Актуальные позиции из листа Summary</div>
+          ${itemsHtml}
+          <button class="btn btn-secondary" onclick="switchTab('pro')">Открыть безлимит активов в Pro</button>
+        `;
+      }
+    }
+  } catch (e) {
+    console.warn("Не удалось загрузить данные таблицы:", e);
+  }
+}
+
+loadLiveData();
   </script>
 </body>
 </html>
