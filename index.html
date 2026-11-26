@@ -318,7 +318,7 @@
       if (btn) btn.textContent = isProDemo ? "Отключить демо-режим Pro" : "Активировать демо-режим Pro";
     }
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbwRqgaX0_4y9C0g0WciiVE7HmdDCHQ2zZzZ5M37BA-d2nVfmZgXW-Rgwn6TkrZmRuCDUJg/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbw2LD8q-Cl6kZ1kKiKqxxtLEEupTqM48R6Y3n4WxQcGyGR7zqe8qO3ZnDOGlpcAhKwEVw/exec";
     let payoutChart = null;
 
     const canvasEl = document.getElementById("divChart");
@@ -378,11 +378,41 @@
           subEl.textContent = fmtRub(data.monthlyForecast) + " в месяц" + portPart;
         }
 
-        if (payoutChart && Array.isArray(data.monthlyForecasts) && data.monthlyForecasts.length === 12) {
-          payoutChart.data.datasets[0].data = data.monthlyForecasts.map(function (n) {
+        if (Array.isArray(data.monthlyForecasts) && data.monthlyForecasts.length === 12) {
+          const cleanMonths = data.monthlyForecasts.map(function (n) {
             return Number(n) || 0;
           });
-          payoutChart.update();
+
+          if (payoutChart) {
+            payoutChart.data.datasets[0].data = cleanMonths;
+            payoutChart.update();
+          }
+
+          const calendarList = document.getElementById("calendarList");
+          const monthNames = [
+            "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+            "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+          ];
+          const activeMonths = cleanMonths
+            .map(function (amount, idx) {
+              return { name: monthNames[idx], amount: amount };
+            })
+            .filter(function (item) {
+              return item.amount > 0;
+            });
+
+          if (calendarList && activeMonths.length > 0) {
+            const maxAmount = Math.max.apply(null, activeMonths.map(function (m) {
+              return m.amount;
+            }));
+            calendarList.innerHTML = activeMonths.map(function (m) {
+              const metaLabel = m.amount === maxAmount ? "Пиковый месяц выплат" : "Прогноз выплат";
+              return '<div class="event-item">' +
+                '<div><div class="item-name">' + m.name + '</div><div class="item-meta">' + metaLabel + '</div></div>' +
+                '<div class="item-val">' + fmtRub(m.amount) + '</div>' +
+                '</div>';
+            }).join("");
+          }
         }
 
         const assetsList = document.getElementById("assetsList");
