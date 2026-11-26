@@ -1,121 +1,200 @@
-<script>
-    const tg = window.Telegram && window.Telegram.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
-      if (user && user.first_name) {
-        const greetingEl = document.getElementById("greeting");
-        if (greetingEl) greetingEl.textContent = "FinAxis — " + user.first_name;
-      }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinAxis — Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card: #131a26;
+      --card-soft: #182232;
+      --accent: #14b8a6;
+      --accent-soft: rgba(20, 184, 166, 0.14);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.08);
     }
-
-    function switchTab(tabName) {
-      document.querySelectorAll(".tab-content").forEach((el) => {
-        el.classList.remove("active");
-      });
-      document.querySelectorAll(".nav-btn").forEach((btn) => {
-        btn.classList.toggle("active", btn.dataset.tab === tabName);
-      });
-      const target = document.getElementById("tab-" + tabName);
-      if (target) target.classList.add("active");
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-
-    let isProDemo = false;
-    function handleProClick() {
-      isProDemo = !isProDemo;
-      const badge = document.getElementById("planBadge");
-      const btn = document.getElementById("proActionBtn");
-      if (badge) badge.textContent = isProDemo ? "PRO DEMO" : "FREE";
-      if (btn) btn.textContent = isProDemo ? "Отключить демо-режим Pro" : "Активировать демо-режим Pro";
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px 16px 84px;
     }
-
-    const API_URL = "https://script.google.com/macros/s/AKfycbwRqgaX0_4y9C0g0WciiVE7HmdDCHQ2zZzZ5M37BA-d2nVfmZgXW-Rgwn6TkrZmRuCDUJg/exec";
-    let payoutChart = null;
-
-    const canvasEl = document.getElementById("divChart");
-    if (canvasEl && typeof Chart !== "undefined") {
-      const ctx = canvasEl.getContext("2d");
-      payoutChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"],
-          datasets: [{
-            label: "Выплаты, ₽",
-            data: [0, 0, 0, 0, 2741, 1305, 8439, 0, 0, 0, 0, 696],
-            backgroundColor: "#14b8a6",
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { ticks: { color: "#94a3b8" }, grid: { display: false } },
-            y: { ticks: { color: "#94a3b8" }, grid: { color: "rgba(255,255,255,0.06)" } }
-          }
-        }
-      });
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
     }
-
-    async function loadLiveData() {
-      if (!API_URL || API_URL.indexOf("ВАШ_") !== -1) return;
-      try {
-        const tgUser = tg && tg.initDataUnsafe ? tg.initDataUnsafe.user : null;
-        const url = tgUser && tgUser.id
-          ? API_URL + "?user_id=" + encodeURIComponent(tgUser.id)
-          : API_URL;
-
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!data || !data.ok) return;
-
-        const fmtRub = function (val) {
-          return Number(val || 0).toLocaleString("ru-RU", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          }) + " ₽";
-        };
-
-        const kpiEl = document.querySelector("#tab-overview .kpi");
-        const subEl = document.querySelector("#tab-overview .kpi + .sub");
-
-        if (kpiEl && typeof data.yearlyIncome === "number") {
-          kpiEl.textContent = fmtRub(data.yearlyIncome) + " / год";
-        }
-        if (subEl && typeof data.monthlyForecast === "number") {
-          const portPart = typeof data.portfolioValue === "number"
-            ? " · портфель " + fmtRub(data.portfolioValue)
-            : " · данные из таблицы";
-          subEl.textContent = fmtRub(data.monthlyForecast) + " в месяц" + portPart;
-        }
-
-        if (payoutChart && Array.isArray(data.monthlyForecasts) && data.monthlyForecasts.length === 12) {
-          payoutChart.data.datasets[0].data = data.monthlyForecasts.map(function (n) {
-            return Number(n) || 0;
-          });
-          payoutChart.update();
-        }
-
-        const assetsList = document.getElementById("assetsList");
-        if (assetsList && Array.isArray(data.assets) && data.assets.length > 0) {
-          assetsList.innerHTML = data.assets.map(function (a) {
-            const name = String(a.name || "");
-            const sector = String(a.sector || "");
-            const payout = Number(a.payout || 0);
-            const share = a.share !== undefined && a.share !== null ? a.share + "%" : "";
-            const valText = fmtRub(a.positionValue || a.marketValue || 0);
-            const metaText = [sector, payout ? "выплаты " + fmtRub(payout) : "", share].filter(Boolean).join(" · ");
-            return '<div class="asset-item">' +
-              '<div><div class="item-name">' + name + '</div><div class="item-meta">' + metaText + '</div></div>' +
-              '<div class="item-val">' + valText + '</div>' +
-              '</div>';
-          }).join("");
-        }
-      } catch (err) {
-        console.warn("FinAxis loadLiveData error:", err);
-      }
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      white-space: nowrap;
     }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .sub {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .kpi {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 10px 0 4px;
+    }
+    canvas {
+      max-height: 220px;
+      width: 100% !important;
+      margin-top: 8px;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .asset-item, .event-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--card-soft);
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+    .asset-item:last-child, .event-item:last-child {
+      margin-bottom: 0;
+    }
+    .item-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .item-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .item-val {
+      text-align: right;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .pro-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 10px 0 12px;
+    }
+    .pro-list {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+    .pro-list li {
+      font-size: 13px;
+      color: var(--text);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .pro-list li:last-child {
+      border-bottom: none;
+    }
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--accent);
+      color: #06201d;
+    }
+    .btn-secondary {
+      margin-top: 10px;
+      background: var(--card-soft);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: rgba(19, 26, 38, 0.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 4px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .nav-btn.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="header-row">
+    <div>
+      <div class="title" id="greeting">FinAxis Аналитика</div>
+      <div class="sub">Портфель и дивидендный прогноз</div>
+    </div>
+    <span class="badge" id="planBadge">FREE</span>
+  </div>
 
-    loadLiveData();
-  </script>
+  <section id="tab-overview" class="tab-content active">
+    <div class="card">
+      <div class="sub">Прогноз пассивного дохода (после 13% НДФЛ)</div>
+      <div class="kpi">13 180,50 ₽ / год</div>
+      <div class="sub">~1 098,38 ₽ в месяц · базовый план</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Выплаты по месяцам</div>
+      <canvas id="divChart"></canvas>
+    </div>
+  </section>
+
+  <section id="tab-assets" class="tab-content">
